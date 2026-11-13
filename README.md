@@ -1,4 +1,4 @@
-# PaiAC 0.1.2-SNAPSHOT
+# PaiAC 1.0.0
 
 Modular anti-cheat plugin for Survival / Economy / Crystal & Anchor PvP servers.
 Package `com.paimc.anticheat` · Java 21 · Gradle (Kotlin DSL) · Paper-first, Folia + Spigot/Bukkit paths included · MC 1.21.1 – 1.21.11 (targeted).
