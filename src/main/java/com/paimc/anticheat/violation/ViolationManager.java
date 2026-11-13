@@ -4,6 +4,7 @@ import com.paimc.anticheat.PaiAC;
 import com.paimc.anticheat.checks.Check;
 import com.paimc.anticheat.config.Settings;
 import com.paimc.anticheat.player.PlayerState;
+import com.paimc.anticheat.punishment.PunishmentManager;
 import com.paimc.anticheat.util.CompatUtil;
 import org.bukkit.entity.Player;
 
@@ -53,6 +54,7 @@ public final class ViolationManager {
                     plugin.punishments().onDecay(s, e.getKey(), nv);
                 }
             }
+            plugin.punishments().onDecay(s, PunishmentManager.TOTAL_ID, s.totalVl());
             s.pruneIdle(now, retention);
         }
     }

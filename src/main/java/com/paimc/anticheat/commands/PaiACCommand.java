@@ -4,6 +4,7 @@ import com.paimc.anticheat.PaiAC;
 import com.paimc.anticheat.checks.Check;
 import com.paimc.anticheat.checks.crystal.CrystalMacroCheck;
 import com.paimc.anticheat.player.PlayerState;
+import com.paimc.anticheat.punishment.PunishmentManager;
 import com.paimc.anticheat.storage.BanEntry;
 import com.paimc.anticheat.util.Colors;
 import com.paimc.anticheat.util.Durations;
@@ -147,7 +148,7 @@ public final class PaiACCommand implements TabExecutor {
         PlayerState st = online(s, a, 1);
         if (st == null) return;
         Map<String, Double> m = st.vlSnapshot();
-        send(s, "&f" + st.name + " &7total VL " + String.format(Locale.ROOT, "%.1f", st.totalVl()));
+        send(s, "&f" + st.name + " &7total VL (sum of all checks): &f" + String.format(Locale.ROOT, "%.1f", st.totalVl()));
         if (m.isEmpty()) send(s, "&7No violations.");
         m.forEach((k, v) -> send(s, "&8 - &f" + k + " &7" + String.format(Locale.ROOT, "%.1f", v)));
         synchronized (st.recentEvidence) {
@@ -164,6 +165,7 @@ public final class PaiACCommand implements TabExecutor {
         if (st == null) return;
         if (a.length > 2) st.clearVl(a[2]);
         else st.clearVl();
+        plugin.punishments().onDecay(st, PunishmentManager.TOTAL_ID, st.totalVl());
         send(s, "&7Violations cleared for &f" + st.name + (a.length > 2 ? " &7(" + a[2] + ")" : ""));
     }
 

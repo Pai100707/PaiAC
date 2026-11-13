@@ -1,25 +1,29 @@
-# PaiAC 1.0.0
+# PaiAC 1.0.1
 
 Modular anti-cheat plugin for Survival / Economy / Crystal & Anchor PvP servers.
 Package `com.paimc.anticheat` · Java 21 · Gradle (Kotlin DSL) · Paper-first, Folia + Spigot/Bukkit paths included · MC 1.21.1 – 1.21.11 (targeted).
 
-## STATUS – read this first
+## STATUS - read this first
 
 | Item | State |
 |---|---|
-| Source complete for Stage 1 (core) + checks listed below | yes |
-| Compiled against the real Paper API | **NO – never built** (the authoring sandbox had no network / Gradle / Paper API). Only a javac syntax pass and the pure-Java utility tests were run. Expect a few compile errors on first build; send them back and they get fixed. |
-| Unit tests | `DoubleRingTest`, `DurationsTest` (pure Java; equivalent assertions were executed, JUnit itself was not) |
-| Tested on a real server (Paper / Folia / Spigot) | **NO** |
-| Gradle wrapper | **not included** – generate it yourself (below) |
-| `folia-supported: true` | declared; Folia path (region schedulers) is implemented but untested |
+| Stage 1 (core) + all checks listed below | implemented |
+| Built against the real Paper API | 1.0.0 was built by the project owner with Gradle 8.14.3. **1.0.1 was only syntax / type-checked by the author** (no Paper API in the authoring sandbox): build it and report any error. |
+| Tested on a real server | partly: one Paper 1.21.11 server, tested with a cheat client. fly, boat-fly, anchor-sequence and anchor-switch were seen flagging. crystal, auto-totem, kill-aura, reach, speed and fast-xp are **not verified** against real cheats. |
+| Folia / Spigot | code paths exist, **untested** |
+| Gradle wrapper | included (`./gradlew build`) |
+
+## Changes in 1.0.1
+* **Fix:** a KICK crossed together with a TEMPBAN/BAN (typical after rejoining with a high VL) no longer swallows the ban. Only the most severe removal runs.
+* **New: total VL.** The sum of the VL of every check is tracked per player and has its own threshold list (`total-thresholds` in `punishments.yml`, pseudo check id `total`). It is evaluated after every flag, decays with the per-check VL, shows in `/paiac vl`, in alert logs and as the `{total}` placeholder in `messages.yml` `alert`.
+* After a rejoin, alerts/setbacks already triggered are not replayed (`PunishmentManager.seed`).
+* New reason placeholder `{last-check}` (the check that flagged last). `docs/punishments-enforce.example.yml` is a full ENFORCE ladder for every check plus the total thresholds.
 
 ## Build (compile-only, no extra plugins needed)
 
 ```bash
-# on a machine with Gradle 8.x and JDK 21 (Termux: pkg install openjdk-21 gradle)
-gradle wrapper --gradle-version 8.10.2     # creates gradlew + gradle/wrapper/*
-./gradlew build                            # -> build/libs/PaiAC-0.1.0-SNAPSHOT.jar
+# needs JDK 21 (Termux: pkg install openjdk-21)
+./gradlew build                            # -> build/libs/PaiAC-1.0.1.jar
 ./gradlew test
 ```
 

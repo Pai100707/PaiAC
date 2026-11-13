@@ -25,8 +25,9 @@ public final class AlertManager {
 
         String template = plugin.config().msg("alert",
                 "{prefix}&f{player} &7failed &c{check} &7(vl &f{vl}&7) &8| &7obs &f{observed} &7exp &f{expected} &8| &7{ping}ms {tps}tps");
-        String msg = apply(template, s.name, checkId, vl, observed, expected, ping, tps);
-        plugin.getLogger().info(org.bukkit.ChatColor.stripColor(Colors.color(msg)) + " | " + details);
+        String msg = apply(template, s.name, checkId, vl, observed, expected, ping, tps)
+                .replace("{total}", String.format("%.1f", s.totalVl()));
+        plugin.getLogger().info(org.bukkit.ChatColor.stripColor(Colors.color(msg)) + " | total vl " + String.format("%.1f", s.totalVl()) + " | " + details);
         sendToStaff(msg);
     }
 

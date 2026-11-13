@@ -26,6 +26,9 @@ public final class PunishmentManager {
     public record Threshold(double vl, PunishAction action, boolean enabled, double repeatEvery,
                             long durationMs, String reason) {}
 
+    /** Pseudo check id of the combined VL (sum of every check). */
+    public static final String TOTAL_ID = "total";
+
     private final PaiAC plugin;
     private volatile boolean enforce;
     private volatile boolean autoBan;
@@ -33,6 +36,7 @@ public final class PunishmentManager {
     private volatile long guardMs = 3000;
     private volatile List<Threshold> defaults = List.of();
     private volatile Map<String, List<Threshold>> perCheck = Map.of();
+    private volatile List<Threshold> totalThresholds = List.of();
 
     public PunishmentManager(PaiAC plugin) {
         this.plugin = plugin;
@@ -54,6 +58,7 @@ public final class PunishmentManager {
         cancelMs = Math.max(100, c.getLong("cancel-duration-ms", 1500));
         guardMs = Math.max(0, c.getLong("duplicate-guard-ms", 3000));
         defaults = parseList(c.getMapList("default-thresholds"), "default-thresholds");
+        totalThresholds = parseList(c.getMapList("total-thresholds"), "total-thresholds");
 
         Map<String, List<Threshold>> map = new HashMap<>();
         ConfigurationSection cs = c.getConfigurationSection("checks");
@@ -94,41 +99,97 @@ public final class PunishmentManager {
         return out;
     }
 
-    public void evaluate(PlayerState s, String checkId, double vlAfter) {
-        List<Threshold> list = perCheck.getOrDefault(checkId, defaults);
+    /**
+     * Evaluates the thresholds of the check that just flagged AND the combined (total) thresholds.
+     * Non-removal actions run immediately. Among all removal actions (KICK / TEMPBAN / BAN) crossed
+     * together only the most severe one runs, so a KICK can never swallow a TEMPBAN or BAN.
+     */
+    public void evaluate(PlayerState s, String flaggedCheck, double checkVl) {
+        Pending best = scan(s, flaggedCheck, checkVl, flaggedCheck, null);
+        best = scan(s, TOTAL_ID, s.totalVl(), flaggedCheck, best);
+        if (best == null) return;
+        if (System.currentTimeMillis() - s.lastPunishMs < guardMs) {
+            s.firedPunishments.remove(best.key()); // too soon after another removal: retry on the next flag
+            return;
+        }
+        execute(s, best.owner(), best.t(), best.vl(), flaggedCheck);
+    }
+
+    private record Pending(Threshold t, String key, String owner, double vl) {}
+
+    private Pending scan(PlayerState s, String owner, double vl, String flaggedCheck, Pending best) {
+        List<Threshold> list = listFor(owner);
         for (int i = 0; i < list.size(); i++) {
             Threshold t = list.get(i);
-            if (!t.enabled() || vlAfter < t.vl()) continue;
-            int bucket = t.repeatEvery() > 0 ? (int) ((vlAfter - t.vl()) / t.repeatEvery()) : 0;
-            String key = checkId + "#" + i + "#" + bucket;
+            if (!t.enabled() || vl < t.vl()) continue;
+            String key = key(owner, i, t, vl);
             if (!s.firedPunishments.add(key)) continue;
-            execute(s, checkId, t, vlAfter);
+            if (isRemoval(t.action())) {
+                if (best == null || severity(t) > severity(best.t())) best = new Pending(t, key, owner, vl);
+            } else {
+                execute(s, owner, t, vl, flaggedCheck);
+            }
+        }
+        return best;
+    }
+
+    private static String key(String owner, int index, Threshold t, double vl) {
+        int bucket = t.repeatEvery() > 0 ? (int) ((vl - t.vl()) / t.repeatEvery()) : 0;
+        return owner + "#" + index + "#" + bucket;
+    }
+
+    private List<Threshold> listFor(String owner) {
+        return TOTAL_ID.equals(owner) ? totalThresholds : perCheck.getOrDefault(owner, defaults);
+    }
+
+    private static boolean isRemoval(PunishAction a) {
+        return a == PunishAction.KICK || a.isBan();
+    }
+
+    private static long severity(Threshold t) {
+        return switch (t.action()) {
+            case KICK -> 1L;
+            case TEMPBAN -> 10L + Math.max(0, t.durationMs()) / 1000L;
+            case BAN -> Long.MAX_VALUE / 2;
+            default -> 0L;
+        };
+    }
+
+    /** After a rejoin: do not replay alerts/setbacks already triggered; removal thresholds stay armed. */
+    public void seed(PlayerState s) {
+        for (Map.Entry<String, Double> e : s.vlSnapshot().entrySet()) seedOwner(s, e.getKey(), e.getValue());
+        seedOwner(s, TOTAL_ID, s.totalVl());
+    }
+
+    private void seedOwner(PlayerState s, String owner, double vl) {
+        List<Threshold> list = listFor(owner);
+        for (int i = 0; i < list.size(); i++) {
+            Threshold t = list.get(i);
+            if (!t.enabled() || isRemoval(t.action()) || vl < t.vl()) continue;
+            s.firedPunishments.add(key(owner, i, t, vl));
         }
     }
 
-    /** Re-arms thresholds once VL decayed below them. */
-    public void onDecay(PlayerState s, String checkId, double newVl) {
+    /** Re-arms thresholds of one owner (a check id or TOTAL_ID) once its VL dropped below them. */
+    public void onDecay(PlayerState s, String owner, double newVl) {
         if (s.firedPunishments.isEmpty()) return;
-        List<Threshold> list = perCheck.getOrDefault(checkId, defaults);
+        List<Threshold> list = listFor(owner);
         for (int i = 0; i < list.size(); i++) {
             if (newVl < list.get(i).vl()) {
-                String prefix = checkId + "#" + i + "#";
+                String prefix = owner + "#" + i + "#";
                 s.firedPunishments.removeIf(k -> k.startsWith(prefix));
             }
         }
     }
 
-    private void execute(PlayerState s, String checkId, Threshold t, double vl) {
+    private void execute(PlayerState s, String owner, Threshold t, double vl, String flaggedCheck) {
         long now = System.currentTimeMillis();
         PunishAction a = t.action();
-        String reason = t.reason().replace("{check}", checkId).replace("{vl}", String.format(Locale.ROOT, "%.1f", vl));
+        String reason = t.reason().replace("{check}", owner).replace("{last-check}", flaggedCheck)
+                .replace("{vl}", String.format(Locale.ROOT, "%.1f", vl));
         boolean banAllowed = !a.isBan() || autoBan;
         boolean real = (!a.needsEnforcement() || enforce) && banAllowed;
-
-        if (a.needsEnforcement() && real && (a == PunishAction.KICK || a.isBan())
-                && now - s.lastPunishMs < guardMs) {
-            return; // a removal just happened, avoid double punishment
-        }
+        String checkId = owner;
 
         long expires = a == PunishAction.TEMPBAN ? now + t.durationMs() : -1;
         if (!(real && a.isBan())) { // real bans are recorded by applyBan()
@@ -149,7 +210,7 @@ public final class PunishmentManager {
                 plugin.alerts().notice("&7Verbose evidence enabled for &f" + s.name + " &7(10 min)");
             }
             case CANCEL_ACTION -> {
-                s.cancelActions(checkId, now + cancelMs);
+                s.cancelActions(TOTAL_ID.equals(owner) ? flaggedCheck : owner, now + cancelMs);
                 plugin.alerts().notice("&7Cancelling &f" + checkId + " &7actions of &f" + s.name + " &7for " + cancelMs + "ms");
             }
             case SETBACK -> {

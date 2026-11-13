@@ -28,7 +28,10 @@ public final class PlayerStateManager {
             PlayerState ns = new PlayerState(id, p.getName());
             ns.setPlayer(p);
             ns.alertsEnabled = plugin.settings().alertsDefaultOn;
-            plugin.storage().loadViolations(id).thenAccept(ns::restoreVl);
+            plugin.storage().loadViolations(id).thenAccept(map -> {
+                ns.restoreVl(map);
+                plugin.punishments().seed(ns);
+            });
             return ns;
         });
     }
