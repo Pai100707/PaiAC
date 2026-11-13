@@ -1,0 +1,30 @@
+config-version: 1
+# Crystal PvP place->hit cycle analysis (obsidian/bedrock base).
+# !! The profile numbers below are UNCALIBRATED starting points. Enable baseline-collection on your own server,
+# !! look at the 'baselines' table (v1=mean ms, v2=stddev ms, v3=cycles/s), then pick/tune a profile.
+crystal:
+  profile: custom
+  profiles:
+    custom:
+      min-mean-cycle-ms: 55
+      min-stddev-ms: 2.5
+      consistency-mean-limit-ms: 180
+      instant-cycle-ms: 12
+      max-instant-cycles: 4
+      max-cps: 10
+
+  macro:
+    enabled: true
+    violation-points: 2
+    threshold: 3.0
+    buffer-limit: 5.0
+    buffer-decay: 0.25
+    cooldown-ms: 500
+    min-evidence: 2
+    reset-on-clean: true
+    debug: true
+    sample-size: 6
+    window-reset-ms: 1500
+    required-signals: 2
+    max-ping-jitter-ms: 80
+    baseline-collection: false

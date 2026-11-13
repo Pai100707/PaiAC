@@ -1,0 +1,31 @@
+config-version: 2
+inventory:
+  auto-totem:
+    enabled: true
+    violation-points: 2.0
+    threshold: 3.0
+    buffer-limit: 6.0
+    buffer-decay: 0.5
+    cooldown-ms: 2000
+    min-evidence: 2
+    reset-on-clean: true
+    debug: false
+    min-refill-ms: 100 # pop -> totem in off-hand; includes network latency, humans are far above this
+    timeout-ms: 3000 # slower refills are ignored (not part of the fight)
+    min-samples: 4
+    consistency-mean-limit-ms: 300 # regularity test only for fast refills
+    min-stddev-ms: 15
+  fast-xp:
+    enabled: true
+    violation-points: 0.5
+    threshold: 3.0
+    buffer-limit: 16.0
+    buffer-decay: 0.2
+    cooldown-ms: 125
+    min-evidence: 3
+    reset-on-clean: true
+    debug: false
+    cancel-excess: true
+    window-ms: 1000
+    max-per-window: 12
+    min-gap-ms: 25

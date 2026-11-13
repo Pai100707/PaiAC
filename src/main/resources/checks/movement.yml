@@ -1,0 +1,67 @@
+config-version: 1
+
+# Movement is skipped (and buffers reset) for this many ticks after the matching event.
+exemptions:
+  after-teleport-ticks: 20
+  after-velocity-ticks: 30        # knockback, wind charge, plugin velocity
+  after-explosion-ticks: 40
+  after-damage-ticks: 15
+  after-gamemode-change-ticks: 40
+  after-vehicle-ticks: 20
+  after-glide-ticks: 40
+  after-riptide-ticks: 40
+  after-bounce-ticks: 40          # slime / bed
+  after-flight-toggle-ticks: 60
+  after-world-change-ticks: 40
+  after-join-ticks: 60
+
+# Common keys for every check:
+#   enabled, violation-points (VL per flag), threshold (buffer needed before a flag),
+#   buffer-limit (cap), buffer-decay (removed on each clean event), cooldown-ms (min time between flags),
+#   min-evidence (suspicious events needed), reset-on-clean (reset evidence counter when buffer hits 0), debug
+movement:
+  fly:
+    enabled: true
+    violation-points: 2.0
+    threshold: 4.0
+    buffer-limit: 8.0
+    buffer-decay: 0.75
+    cooldown-ms: 500
+    min-evidence: 4
+    reset-on-clean: true
+    debug: false
+    tolerance: 0.05               # blocks/tick allowed above the gravity prediction
+
+  speed:
+    enabled: true
+    violation-points: 1.5
+    threshold: 5.0
+    buffer-limit: 10.0
+    buffer-decay: 0.5
+    cooldown-ms: 500
+    min-evidence: 5
+    reset-on-clean: true
+    debug: false
+    tolerance: 1.10               # multiplier on the allowed speed (also raised automatically when TPS < 20)
+    air-multiplier: 2.2           # airborne cap relative to the ground cap
+    ice-multiplier: 2.5
+    soul-speed-multiplier: 2.0
+    liquid-cap-per-tick: 0.45     # blocks/tick in water/lava
+    max-ticks: 4                  # moves spanning more ticks than this are not judged
+
+  boat-fly:
+    enabled: true
+    violation-points: 1.5
+    threshold: 4.0
+    buffer-limit: 8.0
+    buffer-decay: 0.5
+    cooldown-ms: 1000
+    min-evidence: 4
+    reset-on-clean: true
+    debug: false
+    min-air-ticks: 6              # consecutive unsupported moves before hover is judged
+    max-hover-dy: -0.02           # blocks/tick; boats in free fall are well below this
+    default-cap-per-tick: 0.7
+    ice-cap-per-tick: 2.5
+    blue-ice-cap-per-tick: 4.2
+    tolerance: 1.15

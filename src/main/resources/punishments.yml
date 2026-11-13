@@ -1,0 +1,147 @@
+config-version: 1
+
+# DETECTION_ONLY (default): nothing is ever done to a player. Actions that would punish are logged as
+#                           "dry-run" (alert + 'punishments' table) so you can calibrate thresholds safely.
+# ENFORCE:                  CANCEL_ACTION / SETBACK / KICK are executed. TEMPBAN / BAN additionally need auto-ban-enabled.
+enforcement-mode: ENFORCE
+
+# Second safety switch: even in ENFORCE, automatic BAN/TEMPBAN only run when this is true.
+auto-ban-enabled: true
+
+cancel-duration-ms: 1000     # how long CANCEL_ACTION keeps cancelling that check's actions (reach hits, crystal hits)
+duplicate-guard-ms: 3000     # after a kick/ban, further removals of the same player are ignored for this long
+
+# Actions: ALERT, LOG (verbose evidence for 10 min), CANCEL_ACTION, SETBACK, KICK, TEMPBAN (needs duration), BAN
+# Each entry fires once when VL reaches `vl`; it re-arms after VL decays below it.
+# repeat-every: also fire again every N additional VL. enabled: false keeps the entry but disables it.
+default-thresholds:
+  - { vl: 5, action: ALERT }
+  - { vl: 10, action: LOG }
+  - { vl: 15, action: CANCEL_ACTION }
+  - { vl: 20, action: SETBACK }
+  - { vl: 25, action: KICK, reason: "Suspicious behaviour detected ({check})" }
+  - { vl: 30, action: TEMPBAN, duration: 2h, enabled: true, reason: "Cheating detected ({check})" }
+  - { vl: 40, action: TEMPBAN, duration: 12h, enabled: true, reason: "Cheating detected ({check})" }
+  - { vl: 70, action: TEMPBAN, duration: 7d, enabled: true, reason: "Cheating detected ({check})" }
+  - { vl: 100, action: BAN, enabled: true, reason: "Cheating detected ({check})" }
+
+# Per-check override REPLACES the default list for that check. Example:
+# checks:
+#   crystal-macro:
+#     thresholds:
+#       - { vl: 8, action: ALERT }
+#       - { vl: 15, action: CANCEL_ACTION }
+checks:
+  fly:
+    thresholds:
+      - vl: 5
+        action: SETBACK
+        repeat-every: 2
+      - vl: 8
+        action: KICK
+        reason: "Fly"
+
+  boat-fly:
+    thresholds:
+      - vl: 4
+        action: SETBACK
+        repeat-every: 2
+      - vl: 10
+        action: KICK
+        reason: "Boat fly"
+
+  anchor-sequence:
+    thresholds:
+      - vl: 3
+        action: ALERT
+      - vl: 5
+        action: KICK
+        reason: "Anchor macro"
+
+  anchor-switch:
+    thresholds:
+      - vl: 3
+        action: ALERT
+      - vl: 5
+        action: KICK
+        reason: "Anchor macro"
+
+  auto-totem:
+    thresholds:
+      - vl: 2
+        action: SETBACK
+        repeat-every: 2
+      - vl: 4
+        action: KICK
+        reason: "Auto totem"
+
+default-thresholds:
+  - { vl: 5, action: ALERT }
+  - { vl: 10, action: LOG }
+  - { vl: 15, action: CANCEL_ACTION }
+  - { vl: 20, action: SETBACK }
+  - { vl: 30, action: KICK, reason: "Suspicious behaviour detected ({check})" }
+  - { vl: 40, action: TEMPBAN, duration: 5m, enabled: true, reason: "Cheating detected ({check})" }
+  - { vl: 50, action: TEMPBAN, duration: 2h, enabled: true, reason: "Cheating detected ({check})" }
+  - { vl: 60, action: TEMPBAN, duration: 12h, enabled: true, reason: "Cheating detected ({check})" }
+  - { vl: 80, action: TEMPBAN, duration: 7d, enabled: true, reason: "Cheating detected ({check})" }
+  - { vl: 120, action: BAN, enabled: true, reason: "Cheating detected ({check})" }
+
+# Per-check override REPLACES the default list for that check. Example:
+# checks:
+#   crystal-macro:
+#     thresholds:
+#       - { vl: 8, action: ALERT }
+#       - { vl: 15, action: CANCEL_ACTION }
+checks:
+  fly:
+    thresholds:
+      - vl: 5
+        action: SETBACK
+        repeat-every: 2
+      - vl: 8
+        action: KICK
+        reason: "Fly"
+
+  boat-fly:
+    thresholds:
+      - vl: 4
+        action: SETBACK
+        repeat-every: 2
+      - vl: 10
+        action: KICK
+        reason: "Boat fly"
+
+  anchor-sequence:
+    thresholds:
+      - vl: 3
+        action: ALERT
+      - vl: 5
+        action: KICK
+        reason: "Anchor macro"
+
+  anchor-switch:
+    thresholds:
+      - vl: 3
+        action: ALERT
+      - vl: 5
+        action: KICK
+        reason: "Anchor macro"
+
+  auto-totem:
+    thresholds:
+      - vl: 2
+        action: SETBACK
+        repeat-every: 2
+      - vl: 4
+        action: KICK
+        reason: "Auto totem"
+
+  crystal-macro:
+    thresholds:
+      - vl: 2
+        action: SETBACK
+        repeat-every: 2
+      - vl: 4
+        action: KICK
+        reason: "Crystal macro"

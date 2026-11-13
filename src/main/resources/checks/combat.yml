@@ -1,0 +1,55 @@
+config-version: 1
+# Common keys: see checks/movement.yml
+combat:
+  reach:
+    enabled: true
+    violation-points: 1.0
+    threshold: 4.0
+    buffer-limit: 8.0
+    buffer-decay: 0.5
+    cooldown-ms: 1000
+    min-evidence: 4
+    reset-on-clean: true
+    debug: false
+    max-reach: 3.0                    # blocks, eye to hitbox (raised automatically if the interaction-range attribute is higher)
+    base-tolerance: 0.4               # blocks of slack for client/server position difference
+    ping-cap-ms: 300                  # ping above this is not compensated further
+    ping-compensation-factor: 1.0     # blocks of slack = ping/50 * target speed (blocks/tick) * factor
+    max-compensation: 1.0             # cap of the ping compensation in blocks
+    hard-cancel-distance: 0.0         # >0: hits farther than this are cancelled outright (0 = off, recommended while calibrating)
+
+  kill-aura:
+    enabled: true
+    violation-points: 3.0
+    threshold: 4.0
+    buffer-limit: 8.0
+    buffer-decay: 0.5
+    cooldown-ms: 1000
+    min-evidence: 4
+    reset-on-clean: true
+    debug: false
+    required-signals: 2               # signals needed on ONE hit (a single signal never flags)
+    ray-sample-window-ms: 200
+    ray-tolerance: 0.25               # blocks the hitbox is expanded for the look-ray test
+    ray-max-distance: 6.0
+    switch-window-ms: 120
+    switch-angle-degrees: 70
+    snap-degrees: 100
+    snap-hit-angle-degrees: 10
+    check-line-of-sight: true
+
+  auto-clicker:
+    enabled: true
+    violation-points: 1.0
+    threshold: 6.0
+    buffer-limit: 12.0
+    buffer-decay: 0.5
+    cooldown-ms: 1500
+    min-evidence: 5
+    reset-on-clean: true
+    debug: false
+    max-cps: 22                       # clicks in the last second; above this is a strong signal
+    min-samples: 30
+    variance-mean-limit-ms: 120       # cadence test only applies when the mean interval is below this
+    min-stddev-ms: 14                 # intervals more regular than this (supporting signal)
+    max-ping-jitter-ms: 80            # timing tests are skipped while ping is unstable

@@ -1,0 +1,29 @@
+name: PaiAC
+main: com.paimc.anticheat.PaiAC
+version: '${version}'
+api-version: '1.21'
+folia-supported: true
+description: Modular anti-cheat for Survival / Economy / Crystal & Anchor PvP servers
+authors: [PaiMC]
+commands:
+  paiac:
+    description: PaiAC administration
+    usage: /paiac help
+    aliases: [pac]
+    permission: paiac.command
+permissions:
+  paiac.command:
+    description: Use the /paiac command (subcommands have their own permissions)
+    default: op
+  paiac.admin:
+    description: Reload, punish, unban, reset violations
+    default: op
+  paiac.alerts:
+    description: Receive violation alerts
+    default: op
+  paiac.view:
+    description: View violation levels and statistics
+    default: op
+  paiac.bypass:
+    description: Bypass every check (use paiac.bypass.<check-id> for a single check)
+    default: false

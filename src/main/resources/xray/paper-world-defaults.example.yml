@@ -1,0 +1,51 @@
+# EXAMPLE ONLY - PaiAC never applies this. Copy the 'anticheat' block into
+#   <server>/config/paper-world-defaults.yml   (all worlds)   or   <world>/paper-world.yml   (one world)
+# then restart. Verify option names against the Paper documentation for your exact Paper version.
+#
+# engine-mode 1: hide ores that are fully enclosed (cheap, low protection)
+# engine-mode 2: additionally inject fake ores to confuse x-ray clients (more CPU/bandwidth, stronger)
+anticheat:
+  anti-xray:
+    enabled: true
+    engine-mode: 2
+    max-block-height: 64        # overworld: protect up to this Y (deepslate ores are below 0)
+    update-radius: 2
+    lava-obscures: false
+    use-permission: false       # true = players with paper.antixray.bypass see real blocks
+    hidden-blocks:
+      - copper_ore
+      - deepslate_copper_ore
+      - raw_copper_block
+      - gold_ore
+      - deepslate_gold_ore
+      - raw_gold_block
+      - iron_ore
+      - deepslate_iron_ore
+      - raw_iron_block
+      - coal_ore
+      - deepslate_coal_ore
+      - lapis_ore
+      - deepslate_lapis_ore
+      - mossy_cobblestone
+      - obsidian
+      - chest
+      - diamond_ore
+      - deepslate_diamond_ore
+      - redstone_ore
+      - deepslate_redstone_ore
+      - clay
+      - emerald_ore
+      - deepslate_emerald_ore
+    replacement-blocks:
+      - stone
+      - oak_planks
+      - deepslate
+
+# NETHER: put this in <world_nether>/paper-world.yml (the overworld list above does not fit the Nether).
+# anticheat:
+#   anti-xray:
+#     enabled: true
+#     engine-mode: 2
+#     max-block-height: 128
+#     hidden-blocks: [ancient_debris, nether_gold_ore, nether_quartz_ore]
+#     replacement-blocks: [netherrack]

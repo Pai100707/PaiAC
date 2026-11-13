@@ -1,0 +1,9 @@
+config-version: 1
+# X-ray is NOT detected by a Java check in PaiAC: it is prevented by the server's native anti-xray, which stops
+# real ore data from ever reaching the client. PaiAC only reads the server config and reports the effective state
+# (startup log and /paiac status). It never edits server files.
+# See xray/paper-world-defaults.example.yml in the plugin folder for a recommended Paper configuration.
+xray:
+  diagnostics:
+    enabled: true
+    warn-if-disabled: true

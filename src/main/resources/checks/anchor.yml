@@ -1,0 +1,41 @@
+config-version: 1
+anchor:
+  charge:
+    enabled: true
+    violation-points: 2.5
+    threshold: 3.0
+    buffer-limit: 6.0
+    buffer-decay: 0.5
+    cooldown-ms: 1500
+    min-evidence: 3
+    reset-on-clean: true
+    debug: false
+    min-place-to-charge-ms: 50
+
+  sequence:
+    enabled: true
+    violation-points: 1.0
+    threshold: 3.0
+    buffer-limit: 6.0
+    buffer-decay: 0.5
+    cooldown-ms: 1500
+    min-evidence: 3
+    reset-on-clean: true
+    debug: false
+    min-charge-to-explode-ms: 40
+    min-total-sequence-ms: 150
+
+  switch:
+    enabled: true
+    violation-points: 1.0
+    threshold: 3.0
+    buffer-limit: 6.0
+    buffer-decay: 0.5
+    cooldown-ms: 1500
+    min-evidence: 3
+    reset-on-clean: true
+    debug: false
+    context-ms: 2000
+    min-charge-to-switch-ms: 40
+    min-avg-switch-interval-ms: 35
+    min-switch-samples: 4

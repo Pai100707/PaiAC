@@ -1,0 +1,32 @@
+# PaiAC main configuration
+# config-version is used for automatic migration: when it is older than the plugin's version, your file is
+# backed up (config.yml.bak-<time>), missing keys are added, and your values are kept.
+config-version: 1
+
+general:
+  debug: false                       # log every suspicious event of every check to console (very verbose)
+  alerts-default-on: true            # staff with paiac.alerts get alerts on join
+  alert-cooldown-ms: 1000            # min time between alerts for the same player+check
+  player-state-retention-seconds: 120  # idle per-check buffers older than this are dropped
+
+compatibility:
+  report-unsupported-features: true  # log what is reduced because no packet library is used
+  folia:
+    enabled: true                    # false = refuse to run on Folia
+
+lag-handling:
+  skip-below-tps: 16.0               # no VL is added while estimated TPS is below this
+  skip-above-ping-ms: 1000           # no VL is added for players above this ping
+
+violations:
+  max-vl: 256.0                      # VL cap per check
+  decay-per-minute: 0.5              # VL removed from every check each minute
+
+performance:
+  async-storage: true                # SQLite on a dedicated thread (false = on the calling thread, NOT recommended)
+  max-pending-evidence: 2000         # bounded write queue; overflow is dropped and counted in /paiac status
+
+storage:
+  file: "data/paiac.db"              # relative to the plugin folder
+  evidence-retention-days: 30        # 0 = keep forever
+  autosave-interval-seconds: 300

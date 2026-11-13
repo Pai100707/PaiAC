@@ -1,0 +1,6 @@
+config-version: 1
+# Colour codes with &. Placeholders: {prefix} {player} {check} {vl} {observed} {expected} {ping} {tps} {reason} {expires}
+prefix: " " # "&8[&bPaiAC&8] &7"
+alert: "{prefix}&f{player} &7failed &c{check} &7(vl &f{vl}&7) &8| &7obs &f{observed} &7exp &f{expected} &8| &7{ping}ms {tps}tps"
+kick-screen: "&cYou are kicked by the server.\n&7Reason: &f{reason}"
+ban-screen: "&cYou are banned from the server.\n&7Reason: &f{reason}\n&7Expires: &f{expires}"
