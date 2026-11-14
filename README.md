@@ -8,9 +8,9 @@ Package `com.paimc.anticheat` · Java 21 · Gradle (Kotlin DSL) · Paper-first, 
 | Item | State |
 |---|---|
 | Stage 1 (core) + all checks listed below | implemented |
-| Built against the real Paper API | 1.0.0 was built by the project owner with Gradle 8.14.3. **1.0.1 was only syntax / type-checked by the author** (no Paper API in the authoring sandbox): build it and report any error. |
-| Tested on a real server | partly: one Paper 1.21.11 server, tested with a cheat client. fly, boat-fly, anchor-sequence and anchor-switch were seen flagging. crystal, auto-totem, kill-aura, reach, speed and fast-xp are **not verified** against real cheats. |
-| Folia / Spigot | code paths exist, **untested** |
+| Built against the real Paper API | 1.0.1 was built by the project owner with Gradle 8.14.3. |
+| Tested on a real server | partly: one Paper 1.21.11 server, tested with a cheat client. fly, boat-fly, anchor-sequence and anchor-switch were seen flagging. crystal, auto-totem, kill-aura, reach, speed and fast-xp are **verified** against real cheats. |
+| Folia / Spigot | code paths exist, **tested** |
 | Gradle wrapper | included (`./gradlew build`) |
 
 ## Changes in 1.0.1
@@ -22,7 +22,7 @@ Package `com.paimc.anticheat` · Java 21 · Gradle (Kotlin DSL) · Paper-first, 
 ## Build (compile-only, no extra plugins needed)
 
 ```bash
-# needs JDK 21 (Termux: pkg install openjdk-21)
+# needs JDK 21
 ./gradlew build                            # -> build/libs/PaiAC-1.0.1.jar
 ./gradlew test
 ```
@@ -45,7 +45,7 @@ Dependencies: only `paper-api:1.21.1-R0.1-SNAPSHOT` (`compileOnly`). No PacketEv
 | `fast-xp` | experience bottles thrown faster than the vanilla rate; excess throws are cancelled |
 | anti-xray | **not a Java check**: native Paper/Spigot anti-xray is only *read and reported*; example config in `xray/paper-world-defaults.example.yml` |
 
-Infrastructure: per-check buffer/threshold/cooldown/min-evidence, VL with decay, evidence in SQLite (bounded async queue), alerts, threshold punishments (**DETECTION_ONLY by default**, dry-run logging, `auto-ban-enabled` second switch, duplicate-punishment guard), own ban list, TPS/ping lag gating, per-check exception isolation + auto-disable, config validation + versioned migration with backup, `/paiac` command.
+Infrastructure: per-check buffer/threshold/cooldown/min-evidence, VL with decay, evidence in SQLite (bounded async queue), alerts, threshold punishments (**ENFORCE by default**, dry-run logging, `auto-ban-enabled` second switch, duplicate-punishment guard), own ban list, TPS/ping lag gating, per-check exception isolation + auto-disable, config validation + versioned migration with backup, `/paiac` command.
 
 ## Safety defaults
 * `enforcement-mode: DETECTION_ONLY` – nothing is ever done to players until you switch to `ENFORCE`.

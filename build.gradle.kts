@@ -3,7 +3,7 @@ plugins {
 }
 
 group = "com.paimc"
-version = "1.0.0-SNAPSHOT-001"
+version = "1.0.1"
 
 java {
     toolchain {
